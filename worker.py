@@ -12,8 +12,21 @@ import pathlib
 import time
 import os
 import random
+import json
 ssl._create_default_https_context = ssl._create_unverified_context
 device = "cuda"
+
+#python worker.py --random 0 --max_rank 1000
+#python worker.py --random 0 --max_rank 900
+#python worker.py --random 0 --max_rank 800
+#python worker.py --random 0 --max_rank 700
+#python worker.py --random 0 --max_rank 600
+
+#python worker.py --random 0 --max_rank 500
+#python worker.py --random 0 --max_rank 400
+#python worker.py --random 0 --max_rank 300
+#python worker.py --random 0 --max_rank 200
+#python worker.py --random 0 --max_rank 100
 
 parser = argparse.ArgumentParser(description='Train networks')
 parser.add_argument('--n_layers', type=int,
