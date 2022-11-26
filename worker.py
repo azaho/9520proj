@@ -9,6 +9,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 import argparse
 import pathlib
+import time
 import os
 import random
 ssl._create_default_https_context = ssl._create_unverified_context
@@ -18,7 +19,7 @@ parser = argparse.ArgumentParser(description='Train networks')
 parser.add_argument('--n_layers', type=int,
                     help='dim_recurrent', default=12)
 parser.add_argument('--m_per_layer', type=int,
-                    help='index of this trial', default=1024)
+                    help='index of this trial', default=1000)
 parser.add_argument('--max_rank', type=int,
                     help='init random to', default=-1)
 parser.add_argument("--verbose", action="store_true")
