@@ -165,7 +165,7 @@ classes = ('plane', 'car', 'bird', 'cat',
 
 net = Net_Rank(N_layers=n_layers, M_per_layer=m_per_layer, max_rank=max_rank)
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(net.parameters(), lr=lr) #, momentum=0.9)
+optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.8)
 
 test_acc = [accuracy(net, test=True)]
 train_acc = [accuracy(net)]
