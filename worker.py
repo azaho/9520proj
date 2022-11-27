@@ -44,6 +44,8 @@ parser.add_argument('--batch_size', type=int,
                     help='dim_recurrent', default=128)
 parser.add_argument('--lr', type=float,
                     help='dim_recurrent', default=0.005)
+parser.add_argument("--just_net", action="store_true")
+parser.add_argument("--no_fancy_init", action="store_true")
 
 
 args = parser.parse_args()
@@ -54,6 +56,8 @@ max_rank = args.max_rank if args.max_rank>0 else None
 n_epochs = args.n_epochs
 batch_size = args.batch_size
 lr = args.lr
+just_net = args.just_net
+no_fancy_init = args.no_fancy_init
 
 random.seed(init_random)
 torch.manual_seed(init_random)
@@ -163,7 +167,10 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
 classes = ('plane', 'car', 'bird', 'cat',
            'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
-net = Net_Rank(N_layers=n_layers, M_per_layer=m_per_layer, max_rank=max_rank)
+if just_net:
+    net = Net(N_layers=n_layers, M_per_layer=m_per_layer)
+else:
+    net = Net_Rank(N_layers=n_layers, M_per_layer=m_per_layer, max_rank=max_rank)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=lr)#, momentum=0.8)
 
@@ -220,9 +227,15 @@ result = {
     "train_acc": train_acc,
     "losses": losses
 }
+
 _path = pathlib.Path(f"results/megabatch_tuningdata.pt")
 _path.parent.mkdir(parents=True, exist_ok=True)
 filename = f"r{max_rank}_i{args.random}_n{n_layers}_m{m_per_layer}_e{n_epochs}_b{batch_size}_lr{lr}"
+if just_net:
+    filename += "_jn"
+if no_fancy_init:
+    filename += "_nfi"
+
 with open(f"results/{filename}.json", 'w', encoding='utf-8') as f:
     json.dump(result, f, ensure_ascii=False, indent=4)
 
