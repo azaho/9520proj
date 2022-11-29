@@ -47,6 +47,10 @@ parser.add_argument('--lr', type=float,
 parser.add_argument("--just_net", action="store_true")
 parser.add_argument("--no_fancy_init", action="store_true")
 
+parser.add_argument('--reglam', type=float,
+                    help='regularization lambda?', default=0)
+parser.add_argument('--regnorm', type=int,
+                    help='regulatization norm to use?', default=0)
 
 args = parser.parse_args()
 init_random = abs(hash(args.random)) % 10**8
@@ -58,6 +62,8 @@ batch_size = args.batch_size
 lr = args.lr
 just_net = args.just_net
 no_fancy_init = args.no_fancy_init
+reg_lam = args.reglam
+reg_norm = args.regnorm
 
 random.seed(init_random)
 torch.manual_seed(init_random)
@@ -177,11 +183,13 @@ optimizer = optim.SGD(net.parameters(), lr=lr)#, momentum=0.8)
 test_acc = [accuracy(net, test=True)]
 train_acc = [accuracy(net)]
 losses = []
+losses_nr = []
 start_time = time.time()
 
 for epoch in range(n_epochs):  # loop over the dataset multiple times
 
     running_loss = 0.0
+    running_loss_nr = 0.0
     for i, data in enumerate(trainloader, 0):
         # get the inputs; data is a list of [inputs, labels]
         inputs, labels = data
@@ -192,16 +200,29 @@ for epoch in range(n_epochs):  # loop over the dataset multiple times
         # forward + backward + optimize
         outputs = net(inputs)
         loss = criterion(outputs, labels)
+        error = 0
+        if regularization_norm == 1:
+            for param in model.parameters():
+                if param.requires_grad is True:
+                    error += reg_lam * torch.sum(torch.abs(param))
+        if regularization_norm == 2:
+            for param in model.parameters():
+                if param.requires_grad is True:
+                    error += reg_lam * torch.sum(param ** 2)
+        running_loss_nr += loss.item()
+        loss += error
+        running_loss += loss.item()
         loss.backward()
         optimizer.step()
 
         # print statistics
-        running_loss += loss.item()
         if i % 20 == 19:    # print every 20 mini-batches
-            print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 20:.10f}')
+            print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 20:.10f}, nr {running_loss_nr / 20:.10f}')
             losses.append(running_loss)
+            losses_nr.append(running_loss_nr)
             #print(accuracy(net))
             running_loss = 0.0
+            running_loss_nr = 0.0
 
     train_acc.append(accuracy(net))
     test_acc.append(accuracy(net, test=True))
@@ -225,7 +246,8 @@ result = {
     "lr": lr,
     "test_acc": test_acc,
     "train_acc": train_acc,
-    "losses": losses
+    "losses": losses,
+    "losses_nr": losses_nr
 }
 
 _path = pathlib.Path(f"results/megabatch_tuningdata.pt")
