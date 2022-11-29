@@ -202,11 +202,11 @@ for epoch in range(n_epochs):  # loop over the dataset multiple times
         loss = criterion(outputs, labels)
         error = 0
         if reg_norm == 1:
-            for param in model.parameters():
+            for param in net.parameters():
                 if param.requires_grad is True:
                     error += reg_lam * torch.sum(torch.abs(param))
         if reg_norm == 2:
-            for param in model.parameters():
+            for param in net.parameters():
                 if param.requires_grad is True:
                     error += reg_lam * torch.sum(param ** 2)
         running_loss_nr += loss.item()
