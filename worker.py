@@ -247,7 +247,9 @@ result = {
     "test_acc": test_acc,
     "train_acc": train_acc,
     "losses": losses,
-    "losses_nr": losses_nr
+    "losses_nr": losses_nr,
+    "reg_norm": reg_norm,
+    "reg_lam": reg_lam
 }
 
 _path = pathlib.Path(f"results/megabatch_tuningdata.pt")
@@ -257,6 +259,8 @@ if just_net:
     filename += "_jn"
 if no_fancy_init:
     filename += "_nfi"
+if reg_norm>0:
+    filename += f"_rn{reg_norm}_rl{reg_lam}"
 
 with open(f"results/{filename}.json", 'w', encoding='utf-8') as f:
     json.dump(result, f, ensure_ascii=False, indent=4)
