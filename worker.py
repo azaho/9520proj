@@ -265,6 +265,8 @@ if reg_norm>0:
 with open(f"results/{filename}.json", 'w', encoding='utf-8') as f:
     json.dump(result, f, ensure_ascii=False, indent=4)
 
+torch.save({'model_state_dict': net.state_dict()}, f"results/{filename}.pth")
+
 
 
 
