@@ -173,6 +173,10 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
 classes = ('plane', 'car', 'bird', 'cat',
            'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
+_path = pathlib.Path(f"results/megabatch_tuningdata.pt")
+_path.parent.mkdir(parents=True, exist_ok=True)
+filename = f"r{max_rank}_i{args.random}_n{n_layers}_m{m_per_layer}_e{n_epochs}_b{batch_size}_lr{lr}"
+
 if just_net:
     net = Net(N_layers=n_layers, M_per_layer=m_per_layer)
 else:
@@ -185,7 +189,7 @@ train_acc = [accuracy(net)]
 losses = []
 losses_nr = []
 start_time = time.time()
-
+min_running_loss = 1e10
 for epoch in range(n_epochs):  # loop over the dataset multiple times
 
     running_loss = 0.0
@@ -221,8 +225,13 @@ for epoch in range(n_epochs):  # loop over the dataset multiple times
             losses.append(running_loss)
             losses_nr.append(running_loss_nr)
             #print(accuracy(net))
+            if running_loss_nr < min_running_loss:
+                min_running_loss = running_loss_nr
+                torch.save({'model_state_dict': net.state_dict()}, f"results/{filename}_best.pth")
+
             running_loss = 0.0
             running_loss_nr = 0.0
+
 
     train_acc.append(accuracy(net))
     test_acc.append(accuracy(net, test=True))
@@ -252,9 +261,6 @@ result = {
     "reg_lam": reg_lam
 }
 
-_path = pathlib.Path(f"results/megabatch_tuningdata.pt")
-_path.parent.mkdir(parents=True, exist_ok=True)
-filename = f"r{max_rank}_i{args.random}_n{n_layers}_m{m_per_layer}_e{n_epochs}_b{batch_size}_lr{lr}"
 if just_net:
     filename += "_jn"
 if no_fancy_init:
