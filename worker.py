@@ -84,7 +84,8 @@ class Net(nn.Module):
                 Wahh = self.layers_a[i].weight
                 Wahh = np.random.randn(Wahh.shape[0], Wahh.shape[1])
                 u, s, vT = np.linalg.svd(Wahh, full_matrices=False)  # np.linalg.svd returns v transpose!
-                Wahh = u @ vT  # make the eigenvalues large so they decay slowly
+                if not no_fancy_init:
+                    Wahh = u @ vT  # make the eigenvalues large so they decay slowly
                 Wahh = torch.tensor(Wahh, dtype=torch.float32)
                 self.layers_a[i].weight[:, :] = Wahh[:, :]
         self.layers_a = nn.ModuleList(self.layers_a)
@@ -116,14 +117,16 @@ class Net_Rank(nn.Module):
                 Wahh = self.layers_a[i].weight
                 Wahh = np.random.randn(Wahh.shape[0], Wahh.shape[1])
                 u, s, vT = np.linalg.svd(Wahh, full_matrices=False)  # np.linalg.svd returns v transpose!
-                Wahh = u @ vT  # make the eigenvalues large so they decay slowly
+                if not no_fancy_init:
+                    Wahh = u @ vT  # make the eigenvalues large so they decay slowly
                 Wahh = torch.tensor(Wahh, dtype=torch.float32)
                 self.layers_a[i].weight[:, :] = Wahh[:, :]
             with torch.no_grad():
                 Wahh = self.layers_b[i].weight
                 Wahh = np.random.randn(Wahh.shape[0], Wahh.shape[1])
                 u, s, vT = np.linalg.svd(Wahh, full_matrices=False)  # np.linalg.svd returns v transpose!
-                Wahh = u @ vT  # make the eigenvalues large so they decay slowly
+                if not no_fancy_init:
+                    Wahh = u @ vT  # make the eigenvalues large so they decay slowly
                 Wahh = torch.tensor(Wahh, dtype=torch.float32)
                 self.layers_b[i].weight[:, :] = Wahh[:, :]
         self.layers_a = nn.ModuleList(self.layers_a)
