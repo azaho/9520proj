@@ -16,6 +16,10 @@ import json
 ssl._create_default_https_context = ssl._create_unverified_context
 device = "cuda"
 
+if __name__ != '__main__':
+    exit()
+torch.freeze_support()
+
 #python worker.py --random 0 --max_rank 1000
 #python worker.py --random 0 --max_rank 900
 #python worker.py --random 0 --max_rank 800
@@ -115,7 +119,7 @@ class Net_Rank(nn.Module):
             self.layers_b.append(nn.Linear(max_rank, out_n, bias=False))
             with torch.no_grad():
                 Wahh = self.layers_a[i].weight
-                Wahh = np.random.randn(Wahh.shape[0], Wahh.shape[1])
+                Wahh = np.random.randn(Wahh.shape[0], Wahh.shape[1]) / (max(Wahh.shape[0], Wahh.shape[1])**0.5)
                 u, s, vT = np.linalg.svd(Wahh, full_matrices=False)  # np.linalg.svd returns v transpose!
                 if not no_fancy_init:
                     Wahh = u @ vT  # make the eigenvalues large so they decay slowly
@@ -123,7 +127,7 @@ class Net_Rank(nn.Module):
                 self.layers_a[i].weight[:, :] = Wahh[:, :]
             with torch.no_grad():
                 Wahh = self.layers_b[i].weight
-                Wahh = np.random.randn(Wahh.shape[0], Wahh.shape[1])
+                Wahh = np.random.randn(Wahh.shape[0], Wahh.shape[1]) / (max(Wahh.shape[0], Wahh.shape[1])**0.5)
                 u, s, vT = np.linalg.svd(Wahh, full_matrices=False)  # np.linalg.svd returns v transpose!
                 if not no_fancy_init:
                     Wahh = u @ vT  # make the eigenvalues large so they decay slowly
