@@ -16,10 +16,6 @@ import json
 ssl._create_default_https_context = ssl._create_unverified_context
 device = "cuda"
 
-if __name__ != '__main__':
-    exit()
-torch.freeze_support()
-
 #python worker.py --random 0 --max_rank 1000
 #python worker.py --random 0 --max_rank 900
 #python worker.py --random 0 --max_rank 800
