@@ -190,7 +190,7 @@ if square_loss:
     criterion = nn.MSELoss()
 else:
     criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(net.parameters(), lr=lr)#, momentum=0.8)
+optimizer = optim.SGD(net.parameters(), lr=lr)#, moentum=0.8)
 
 test_acc = [accuracy(net, test=True)]
 train_acc = [accuracy(net)]
@@ -211,7 +211,7 @@ for epoch in range(n_epochs):  # loop over the dataset multiple times
 
         # forward + backward + optimize
         outputs = net(inputs)
-        loss = criterion(outputs, labels)
+        loss = criterion(outputs, (torch.eye(10)[labels]) if square_loss else labels)
         error = 0
         if reg_norm == 1:
             for param in net.parameters():
