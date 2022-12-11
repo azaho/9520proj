@@ -51,6 +51,7 @@ parser.add_argument('--reglam', type=float,
                     help='regularization lambda?', default=0)
 parser.add_argument('--regnorm', type=int,
                     help='regulatization norm to use?', default=0)
+parser.add_argument("--sqloss", action="store_true")
 
 args = parser.parse_args()
 init_random = abs(hash(args.random)) % 10**8
@@ -64,6 +65,7 @@ just_net = args.just_net
 no_fancy_init = args.no_fancy_init
 reg_lam = args.reglam
 reg_norm = args.regnorm
+square_loss = args.sqloss
 
 random.seed(init_random)
 torch.manual_seed(init_random)
@@ -184,7 +186,10 @@ if just_net:
     net = Net(N_layers=n_layers, M_per_layer=m_per_layer)
 else:
     net = Net_Rank(N_layers=n_layers, M_per_layer=m_per_layer, max_rank=max_rank)
-criterion = nn.CrossEntropyLoss()
+if square_loss:
+    criterion = nn.MSELoss()
+else:
+    criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=lr)#, momentum=0.8)
 
 test_acc = [accuracy(net, test=True)]
